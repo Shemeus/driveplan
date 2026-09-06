@@ -304,7 +304,20 @@ async function loadWhoCanHereResults(){
 function renderWeek(){
   var todayISO = isoToday();
   var days=[0,1,2,3,4,5,6].map(function(i){return addDays(weekStart,i)});
-  $('#weekHead').innerHTML='<div></div>'+days.map(function(d){return '<div class="hd">'+fmtHead(d)+'</div>'}).join('');
+  $('#weekHead').innerHTML='<div></div>'+days.map(function(d){
+    var iso=isoFromDateLocal(d);
+    return '<button type="button" class="hd agenda-date-head" data-date="'+iso+'" title="Nieuwe afspraak op '+escapeHtml(fmtHead(d))+'">'+fmtHead(d)+'</button>';
+  }).join('');
+
+  // Klik alleen op de datumkop om direct een nieuwe afspraak op die dag te maken.
+  // De lege tijdvakken eronder houden hun bestaande functie: "Wie kan hier?".
+  Array.prototype.slice.call($('#weekHead').querySelectorAll('.agenda-date-head')).forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var date=btn.getAttribute('data-date');
+      openLessonModal(null);
+      if(date) nlDate.value=date;
+    });
+  });
 
   var body='<div class="time-col">';
   slots.forEach(function(t){ var show = (String(t).slice(3)==='00'); body+='<div class="time-row">'+(show?t:'')+'</div>'; });
